@@ -3,7 +3,28 @@ name = "pi-web"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "pi-web"
+
 [dependencies]
+anyhow = "1"
 axum = "0.7"
-maud = "0.26"
+maud = { version = "0.26", features = ["axum"] }
 tokio = { version = "1", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["fs", "trace", "util"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+ulid = "1"
+
+[build-dependencies]
+anyhow = "1"
+
+[profile.release]
+strip = true
+lto = true
+panic = "abort"
