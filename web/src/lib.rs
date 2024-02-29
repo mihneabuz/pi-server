@@ -1,4 +1,9 @@
+pub mod app;
 pub mod components;
+pub mod config;
+pub mod middleware;
+pub mod pages;
+pub mod telemetry;
 
 use axum::Router;
 use maud::{html, Markup, DOCTYPE};

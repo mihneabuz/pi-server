@@ -1,7 +1,7 @@
 use axum::{routing::get, Router};
 use maud::{html, Markup};
 
-use pi_web::{components::HeadBuilder, Page};
+use crate::{components::HeadBuilder, Page};
 
 pub struct HomePage;
 impl Page for HomePage {

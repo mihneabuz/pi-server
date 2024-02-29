@@ -1,43 +1,27 @@
-mod middleware;
-mod pages;
-mod telemetry;
-
 use std::net::Ipv4Addr;
 
-use axum::{http::StatusCode, response::IntoResponse, Router};
-use pages::home::HomePage;
-use pi_web::Page;
-use telemetry::{init_tracing, MakeSpanWithId};
-use tower_http::{services::ServeDir, trace::TraceLayer};
+use anyhow::Result;
+use pi_web::{app::App, config::Settings, telemetry::init_tracing};
 
-fn main() {
+fn main() -> Result<()> {
     init_tracing();
+
+    let settings = Settings::parse()?;
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(std::thread::available_parallelism().unwrap().get())
         .enable_all()
-        .build()
-        .unwrap();
+        .build()?;
 
     runtime.block_on(async {
-        let listener = tokio::net::TcpListener::bind((Ipv4Addr::new(0, 0, 0, 0), 3000))
+        let listener = tokio::net::TcpListener::bind((Ipv4Addr::new(0, 0, 0, 0), settings.port))
             .await
             .unwrap();
 
-        axum::serve(listener, app()).await.unwrap();
-    })
-}
+        axum::serve(listener, App::new(settings).build())
+            .await
+            .unwrap();
+    });
 
-fn app() -> Router {
-    let trace_layer = TraceLayer::new_for_http().make_span_with(MakeSpanWithId);
-
-    Router::new()
-        .nest_service("/public", ServeDir::new("public"))
-        .nest_service("/", HomePage::app())
-        .layer(trace_layer)
-        .fallback(not_found)
-}
-
-async fn not_found() -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, "Leave...")
+    Ok(())
 }
