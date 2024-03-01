@@ -1,5 +1,3 @@
-use std::net::Ipv4Addr;
-
 use anyhow::Result;
 use pi_web::{app::App, config::Settings, telemetry::init_tracing};
 
@@ -14,11 +12,11 @@ fn main() -> Result<()> {
         .build()?;
 
     runtime.block_on(async {
-        let listener = tokio::net::TcpListener::bind((Ipv4Addr::new(0, 0, 0, 0), settings.port))
+        let listener = tokio::net::TcpListener::bind((settings.deploy.addr, settings.deploy.port))
             .await
             .unwrap();
 
-        axum::serve(listener, App::new(settings).build())
+        axum::serve(listener, App::new(settings.app).build().await)
             .await
             .unwrap();
     });

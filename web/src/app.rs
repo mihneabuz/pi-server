@@ -1,21 +1,29 @@
 use axum::{http::StatusCode, response::IntoResponse, Router};
 use tower_http::{services::ServeDir, trace::TraceLayer};
 
-use crate::{config::Settings, pages::home::HomePage, telemetry::MakeSpanWithId, Page};
+use crate::{
+    config::AppSettings,
+    pages::{BlogPage, HomePage, Page, ProjectsPage},
+    telemetry::MakeSpanWithId,
+};
 
-pub struct App;
+pub struct App {
+    settings: AppSettings,
+}
 
 impl App {
-    pub fn new(_settings: Settings) -> Self {
-        Self {}
+    pub fn new(settings: AppSettings) -> Self {
+        Self { settings }
     }
 
-    pub fn build(self) -> Router {
+    pub async fn build(self) -> Router {
         let trace_layer = TraceLayer::new_for_http().make_span_with(MakeSpanWithId);
 
         Router::new()
-            .nest_service("/public", ServeDir::new("public"))
-            .nest_service("/", HomePage::app())
+            .nest_service("/public", ServeDir::new(self.settings.public_dir))
+            .merge(HomePage.app())
+            .merge(BlogPage::build(self.settings.blogs_dir).await.app())
+            .merge(ProjectsPage.app())
             .layer(trace_layer)
             .fallback(not_found)
     }

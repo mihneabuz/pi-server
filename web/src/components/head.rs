@@ -26,6 +26,8 @@ impl<'a> HeadBuilder<'a> {
         html! {
             meta charset="utf-8";
             title { (title) }
+            link rel="preconnect" href="https://rsms.me/";
+            link rel="stylesheet" href="https://rsms.me/inter/inter.css";
             link rel="stylesheet" type="text/css" href="/public/styles.css";
             link rel="icon" type="image/x-icon" href=(favicon.unwrap_or(DEFAULT_FAVICON));
         }

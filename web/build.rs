@@ -13,8 +13,8 @@ fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=tailwind.config.js");
     println!("cargo:rerun-if-changed=config/styles.css");
 
-    println!("cargo:rerun-if-changed=src/pages/**/*.rs");
-    println!("cargo:rerun-if-changed=src/components/**/*.rs");
+    println!("cargo:rerun-if-changed=src/pages/");
+    println!("cargo:rerun-if-changed=src/components/");
 
     Ok(())
 }
