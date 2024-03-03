@@ -23,9 +23,9 @@ pub struct AppSettings {
 }
 
 impl Settings {
-    pub fn parse() -> Result<Self> {
+    pub fn parse(file: &str) -> Result<Self> {
         let settings = Config::builder()
-            .add_source(File::new("config/dev.yaml", FileFormat::Yaml))
+            .add_source(File::new(file, FileFormat::Yaml))
             .build()?;
 
         Ok(settings.try_deserialize()?)

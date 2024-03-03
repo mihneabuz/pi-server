@@ -4,4 +4,4 @@ deploy:
 
 app:
   public_dir: "public"
-  blogs_dir: "todo"
+  blogs_dir: "blogs"
