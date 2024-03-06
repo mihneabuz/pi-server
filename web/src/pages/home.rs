@@ -26,7 +26,7 @@ impl HomePage {
             (DOCTYPE)
             html class="h-full" {
                 head { (head) }
-                body class="h-full bg-neutral-800 flex flex-col" {
+                body class="flex flex-col h-full bg-neutral-800" {
                     (nav)
                     (Self::content())
                 }
@@ -36,18 +36,18 @@ impl HomePage {
 
     fn content() -> Markup {
         html! {
-            div class="flex grow justify-center items-center" {
+            div class="flex justify-center items-center grow" {
                 div class="w-[60%]" {
-                    h3 class="my-1 text-teal-500 text-2xl italic" { "Hi, my name is" }
-                    h1 class="my-2 text-slate-200 text-4xl font-bold" { "Mihnea Buzatu" }
+                    h3 class="my-1 text-2xl italic text-teal-500" { "Hi, my name is" }
+                    h1 class="my-2 text-4xl font-bold text-slate-200" { "Mihnea Buzatu" }
 
-                    h3 class="my-4 text-teal-500 text-2xl italic" {
+                    h3 class="my-4 text-2xl italic text-teal-500" {
                         "I like to build "
                         a href=(ProjectsPage::BASE_PATH)
-                            class="text-teal-400 hover:text-teal-200 transition-all" { "stuff" }
+                            class="text-teal-400 transition-all hover:text-teal-200" { "stuff" }
                         " and sometimes "
                         a href=(BlogPage::BASE_PATH)
-                            class="text-teal-400 hover:text-teal-200 transition-all" { "write" }
+                            class="text-teal-400 transition-all hover:text-teal-200" { "write" }
                         " about it."
                     }
                 }

@@ -83,7 +83,7 @@ impl BlogPage {
             (DOCTYPE)
             html {
                 head { (head) }
-                body class="h-full bg-neutral-800 flex flex-col" {
+                body class="flex flex-col h-full bg-neutral-800" {
                     (nav)
                     (Self::content())
                 }
