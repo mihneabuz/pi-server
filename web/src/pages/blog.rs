@@ -3,10 +3,13 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use axum::{routing::get, Router};
 use chrono::NaiveDate;
-use maud::{html, Markup};
+use maud::{html, Markup, DOCTYPE};
 use tracing::warn;
 
-use crate::{components::HeadBuilder, pages::Page};
+use crate::{
+    components::{HeadBuilder, NavBuilder},
+    pages::{Page, NAV_PAGES},
+};
 
 #[derive(Debug)]
 struct Blog {
@@ -74,10 +77,21 @@ impl BlogPage {
 
     async fn index() -> Markup {
         let head = HeadBuilder::new(Self::TITLE).build();
-        Self::page(head, Self::body())
+        let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
+
+        html! {
+            (DOCTYPE)
+            html {
+                head { (head) }
+                body class="h-full bg-neutral-800 flex flex-col" {
+                    (nav)
+                    (Self::content())
+                }
+            }
+        }
     }
 
-    fn body() -> Markup {
+    fn content() -> Markup {
         html! {
             h1 { "Hello, blog!" }
         }

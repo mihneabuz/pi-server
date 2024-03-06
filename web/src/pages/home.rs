@@ -1,7 +1,10 @@
 use axum::{routing::get, Router};
-use maud::{html, Markup};
+use maud::{html, Markup, DOCTYPE};
 
-use crate::{components::HeadBuilder, pages::Page};
+use crate::{
+    components::{HeadBuilder, NavBuilder},
+    pages::{BlogPage, Page, ProjectsPage, NAV_PAGES},
+};
 
 pub struct HomePage;
 
@@ -17,14 +20,37 @@ impl Page for HomePage {
 impl HomePage {
     async fn index() -> Markup {
         let head = HeadBuilder::new(Self::TITLE).build();
-        Self::page(head, Self::body())
+        let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
+
+        html! {
+            (DOCTYPE)
+            html class="h-full" {
+                head { (head) }
+                body class="h-full bg-neutral-800 flex flex-col" {
+                    (nav)
+                    (Self::content())
+                }
+            }
+        }
     }
 
-    fn body() -> Markup {
+    fn content() -> Markup {
         html! {
-            div class="mx-auto" {
-                h3 class="text-teal-500 text-2xl italic" { "Hi, my name is" }
-                h1 class="text-slate-100 text-4xl font-bold" { "Mihnea Buzatu" }
+            div class="flex grow justify-center items-center" {
+                div class="w-[60%]" {
+                    h3 class="my-1 text-teal-500 text-2xl italic" { "Hi, my name is" }
+                    h1 class="my-2 text-slate-200 text-4xl font-bold" { "Mihnea Buzatu" }
+
+                    h3 class="my-4 text-teal-500 text-2xl italic" {
+                        "I like to build "
+                        a href=(ProjectsPage::BASE_PATH)
+                            class="text-teal-400 hover:text-teal-200 transition-all" { "stuff" }
+                        " and sometimes "
+                        a href=(BlogPage::BASE_PATH)
+                            class="text-teal-400 hover:text-teal-200 transition-all" { "write" }
+                        " about it."
+                    }
+                }
             }
         }
     }

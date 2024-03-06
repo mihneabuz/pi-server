@@ -2,12 +2,12 @@ use maud::{html, Markup};
 
 pub type NavEntry = (&'static str, &'static str);
 
-pub struct Nav {
+pub struct NavBuilder {
     entries: &'static [NavEntry],
     active: Option<&'static str>,
 }
 
-impl Nav {
+impl NavBuilder {
     pub fn new(entries: &'static [NavEntry]) -> Self {
         Self {
             entries,
@@ -22,7 +22,7 @@ impl Nav {
 
     pub fn build(self) -> Markup {
         html! {
-            div class="flex justify-between py-4 px-8 bg-sky-950" {
+            div class="flex justify-between py-4 px-8" {
                 h1 class="text-teal-500 font-bold my-auto" { "Icon" }
                 nav class="w-72 flex justify-between" {
                     @for (name, path) in self.entries {
@@ -34,20 +34,15 @@ impl Nav {
     }
 
     fn link(name: &str, path: &str, active: bool) -> Markup {
-        if active {
-            html! {
-                div class="border-b-4 border-teal-500" {
-                    a
-                        href=(path)
-                        class="px-1 text-teal-500 text-lg font-bold"
-                        aria-current="page"
-                        { (name) }
-                }
-            }
-        } else {
-            html! {
-                a href=(path) class="px-1 text-teal-500 text-lg font-bold" { (name) }
-            }
+        let link = html! {
+            a href=(path) class="px-1 text-teal-500 text-lg font-bold" { (name) }
+        };
+
+        match active {
+            true => html! {
+                div class="border-b-2 border-teal-500" { (link) }
+            },
+            false => link,
         }
     }
 }
