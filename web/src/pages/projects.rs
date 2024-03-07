@@ -24,7 +24,7 @@ impl ProjectsPage {
 
         html! {
             (DOCTYPE)
-            html {
+            html class="h-full" {
                 head { (head) }
                 body class="flex flex-col h-full bg-neutral-800" {
                     (nav)
@@ -36,7 +36,11 @@ impl ProjectsPage {
 
     fn content() -> Markup {
         html! {
-            h1 { "Hello, Projects!" }
+            div class="flex justify-center items-center grow" {
+                h1 class="text-6xl font-bold text-slate-200" {
+                    "🚧 Under construction! 🚧"
+                }
+            }
         }
     }
 }

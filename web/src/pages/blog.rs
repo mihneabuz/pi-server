@@ -3,30 +3,32 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use axum::{routing::get, Router};
 use chrono::NaiveDate;
-use maud::{html, Markup, DOCTYPE};
-use tracing::warn;
+use maud::{html, Markup, PreEscaped, DOCTYPE};
+use tracing::{info, warn};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
     pages::{Page, NAV_PAGES},
 };
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Blog {
     title: String,
     date: NaiveDate,
-    file: PathBuf,
+    content: String,
 }
 
 impl Blog {
-    pub fn from_path(path: PathBuf) -> Option<Self> {
+    pub async fn from_path(path: PathBuf) -> Option<Self> {
         let file_name = path.file_name()?.to_string_lossy();
         let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
 
+        let content = tokio::fs::read_to_string(&path).await.ok()?;
+
         Some(Self {
-            title: title.to_string(),
+            title: title.to_owned(),
             date: NaiveDate::parse_from_str(date, "%Y-%m-%d").ok()?,
-            file: path,
+            content,
         })
     }
 }
@@ -42,12 +44,10 @@ impl Page for BlogPage {
     fn app(self) -> Router {
         let mut app = Router::new().route(Self::BASE_PATH, get(Self::index));
 
-        // TODO: this is temporary
         for blog in self.blogs {
-            app = app.route(
-                &format!("{}/{}", Self::BASE_PATH, blog.title),
-                get(|| async { blog.title }),
-            );
+            let path = format!("{}/{}", Self::BASE_PATH, blog.title);
+
+            app = app.route(&path, get(|| Self::blog(blog)));
         }
 
         app
@@ -65,12 +65,16 @@ impl BlogPage {
                 continue;
             }
 
-            let blog_file = blogs_dir.join(file.file_name());
-            let blog = Blog::from_path(blog_file).context("Invalid blog file")?;
+            let blog = Blog::from_path(blogs_dir.join(file.file_name()))
+                .await
+                .context("Invalid blog file")?;
+
+            info!(title = blog.title, date = %blog.date, "Found blog");
+
             blogs.push(blog);
         }
 
-        dbg!(&blogs);
+        info!(count = blogs.len(), "Done loading blogs");
 
         Ok(Self { blogs })
     }
@@ -81,19 +85,37 @@ impl BlogPage {
 
         html! {
             (DOCTYPE)
-            html {
+            html class="h-full" {
                 head { (head) }
                 body class="flex flex-col h-full bg-neutral-800" {
                     (nav)
-                    (Self::content())
+                    div class="flex justify-center items-center grow" {
+                        h1 class="text-6xl font-bold text-slate-200" {
+                            "🚧 Under construction! 🚧"
+                        }
+                    }
                 }
             }
         }
     }
 
-    fn content() -> Markup {
+    async fn blog(blog: Blog) -> Markup {
+        let head = HeadBuilder::new(&blog.title.replace('_', " ")).build();
+        let nav = NavBuilder::new(&NAV_PAGES).build();
+
+        let content = markdown::to_html(&blog.content);
+
         html! {
-            h1 { "Hello, blog!" }
+            (DOCTYPE)
+            html class="h-full" {
+                head { (head) }
+                body class="flex flex-col h-full bg-neutral-800" {
+                    (nav)
+                    div class="m-20 text-slate-200" {
+                        (PreEscaped(content))
+                    }
+                }
+            }
         }
     }
 }
