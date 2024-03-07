@@ -1,9 +1,10 @@
+mod render;
+
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
 use axum::{routing::get, Router};
-use chrono::NaiveDate;
-use maud::{html, Markup, PreEscaped, DOCTYPE};
+use maud::{html, Markup, DOCTYPE};
 use tracing::{info, warn};
 
 use crate::{
@@ -11,27 +12,7 @@ use crate::{
     pages::{Page, NAV_PAGES},
 };
 
-#[derive(Clone, Debug)]
-struct Blog {
-    title: String,
-    date: NaiveDate,
-    content: String,
-}
-
-impl Blog {
-    pub async fn from_path(path: PathBuf) -> Option<Self> {
-        let file_name = path.file_name()?.to_string_lossy();
-        let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
-
-        let content = tokio::fs::read_to_string(&path).await.ok()?;
-
-        Some(Self {
-            title: title.to_owned(),
-            date: NaiveDate::parse_from_str(date, "%Y-%m-%d").ok()?,
-            content,
-        })
-    }
-}
+use render::Blog;
 
 pub struct BlogPage {
     blogs: Vec<Blog>,
@@ -42,15 +23,13 @@ impl Page for BlogPage {
     const BASE_PATH: &'static str = "/blog";
 
     fn app(self) -> Router {
-        let mut app = Router::new().route(Self::BASE_PATH, get(Self::index));
+        let mut inner = Router::new().route("/", get(Self::index));
 
         for blog in self.blogs {
-            let path = format!("{}/{}", Self::BASE_PATH, blog.title);
-
-            app = app.route(&path, get(|| Self::blog(blog)));
+            inner = inner.route(&format!("/{}", blog.title), get(|| Self::blog(blog)));
         }
 
-        app
+        Router::new().nest(Self::BASE_PATH, inner)
     }
 }
 
@@ -65,7 +44,7 @@ impl BlogPage {
                 continue;
             }
 
-            let blog = Blog::from_path(blogs_dir.join(file.file_name()))
+            let blog = Blog::read(blogs_dir.join(file.file_name()))
                 .await
                 .context("Invalid blog file")?;
 
@@ -103,7 +82,7 @@ impl BlogPage {
         let head = HeadBuilder::new(&blog.title.replace('_', " ")).build();
         let nav = NavBuilder::new(&NAV_PAGES).build();
 
-        let content = markdown::to_html(&blog.content);
+        let content = blog.render();
 
         html! {
             (DOCTYPE)
@@ -112,7 +91,7 @@ impl BlogPage {
                 body class="flex flex-col h-full bg-neutral-800" {
                     (nav)
                     div class="m-20 text-slate-200" {
-                        (PreEscaped(content))
+                        (content)
                     }
                 }
             }

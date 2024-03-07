@@ -5,6 +5,7 @@ const DEFAULT_FAVICON: &str = "/public/computer_favicon.png";
 pub struct HeadBuilder<'a> {
     title: &'a str,
     favicon: Option<&'a str>,
+    extra: Vec<Markup>,
 }
 
 impl<'a> HeadBuilder<'a> {
@@ -12,6 +13,7 @@ impl<'a> HeadBuilder<'a> {
         Self {
             title,
             favicon: None,
+            extra: Vec::new(),
         }
     }
 
@@ -20,8 +22,26 @@ impl<'a> HeadBuilder<'a> {
         self
     }
 
+    pub fn script(mut self, src: &'a str) -> Self {
+        self.extra.push(html! {
+            script src=(src);
+        });
+        self
+    }
+
+    pub fn stylesheet(mut self, href: &'a str) -> Self {
+        self.extra.push(html! {
+            link href=(href) rel="stylesheet";
+        });
+        self
+    }
+
     pub fn build(self) -> Markup {
-        let HeadBuilder { title, favicon } = self;
+        let HeadBuilder {
+            title,
+            favicon,
+            extra,
+        } = self;
 
         html! {
             meta charset="utf-8";
@@ -30,6 +50,9 @@ impl<'a> HeadBuilder<'a> {
             link rel="stylesheet" href="https://rsms.me/inter/inter.css";
             link rel="stylesheet" type="text/css" href="/public/styles.css";
             link rel="icon" type="image/x-icon" href=(favicon.unwrap_or(DEFAULT_FAVICON));
+            @for item in extra {
+                (item)
+            }
         }
     }
 }
