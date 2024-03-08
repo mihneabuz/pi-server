@@ -4,7 +4,7 @@ use tower_http::{services::ServeDir, trace::TraceLayer};
 
 use crate::{
     config::AppSettings,
-    pages::{BlogPage, HomePage, Page, ProjectsPage},
+    pages::{BlogApp, HomeApp, Module, ProjectsApp},
     telemetry::MakeSpanWithId,
 };
 
@@ -22,9 +22,9 @@ impl App {
 
         Ok(Router::new()
             .nest_service("/public", ServeDir::new(self.settings.public_dir))
-            .merge(HomePage.app())
-            .merge(BlogPage::build(self.settings.blogs_dir).await?.app())
-            .merge(ProjectsPage.app())
+            .merge(HomeApp.app())
+            .merge(BlogApp::build(self.settings.blogs_dir).await?.app())
+            .merge(ProjectsApp.app())
             .layer(trace_layer)
             .fallback(not_found))
     }

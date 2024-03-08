@@ -10,7 +10,7 @@ use axum::Router;
 
 use crate::components::NavEntry;
 
-pub trait Page {
+pub trait Module {
     const TITLE: &'static str;
     const BASE_PATH: &'static str;
 
@@ -18,7 +18,7 @@ pub trait Page {
 }
 
 const NAV_PAGES: [NavEntry; 3] = [
-    (HomePage::TITLE, HomePage::BASE_PATH),
-    (BlogPage::TITLE, BlogPage::BASE_PATH),
-    (ProjectsPage::TITLE, ProjectsPage::BASE_PATH),
+    (HomeApp::TITLE, HomeApp::BASE_PATH),
+    (BlogApp::TITLE, BlogApp::BASE_PATH),
+    (ProjectsApp::TITLE, ProjectsApp::BASE_PATH),
 ];

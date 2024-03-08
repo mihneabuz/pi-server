@@ -1,4 +1,4 @@
-mod render;
+mod item;
 
 use std::path::PathBuf;
 
@@ -9,31 +9,34 @@ use tracing::{info, warn};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
-    pages::{Page, NAV_PAGES},
+    pages::{Module, NAV_PAGES},
 };
 
-use render::Blog;
+use item::BlogPage;
 
-pub struct BlogPage {
-    blogs: Vec<Blog>,
+pub struct BlogApp {
+    blogs: Vec<BlogPage>,
 }
 
-impl Page for BlogPage {
+impl Module for BlogApp {
     const TITLE: &'static str = "Blog";
     const BASE_PATH: &'static str = "/blog";
 
     fn app(self) -> Router {
-        let mut inner = Router::new().route("/", get(Self::index));
+        let index = self.index();
+        let mut inner = Router::new().route("/", get(move || async { index }));
 
         for blog in self.blogs {
-            inner = inner.route(&format!("/{}", blog.title), get(|| Self::blog(blog)));
+            let path = format!("/{}", blog.title);
+            let rendered = blog.render();
+            inner = inner.route(&path, get(|| async { rendered }));
         }
 
         Router::new().nest(Self::BASE_PATH, inner)
     }
 }
 
-impl BlogPage {
+impl BlogApp {
     pub async fn build(blogs_dir: PathBuf) -> Result<Self> {
         let mut blogs = Vec::new();
 
@@ -44,7 +47,7 @@ impl BlogPage {
                 continue;
             }
 
-            let blog = Blog::read(blogs_dir.join(file.file_name()))
+            let blog = BlogPage::read(blogs_dir.join(file.file_name()))
                 .await
                 .context("Invalid blog file")?;
 
@@ -58,7 +61,7 @@ impl BlogPage {
         Ok(Self { blogs })
     }
 
-    async fn index() -> Markup {
+    fn index(&self) -> Markup {
         let head = HeadBuilder::new(Self::TITLE).build();
         let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
 
@@ -72,26 +75,6 @@ impl BlogPage {
                         h1 class="text-6xl font-bold text-slate-200" {
                             "🚧 Under construction! 🚧"
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    async fn blog(blog: Blog) -> Markup {
-        let head = HeadBuilder::new(&blog.title.replace('_', " ")).build();
-        let nav = NavBuilder::new(&NAV_PAGES).build();
-
-        let content = blog.render();
-
-        html! {
-            (DOCTYPE)
-            html class="h-full" {
-                head { (head) }
-                body class="flex flex-col h-full bg-neutral-800" {
-                    (nav)
-                    div class="m-20 text-slate-200" {
-                        (content)
                     }
                 }
             }

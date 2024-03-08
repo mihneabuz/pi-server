@@ -3,12 +3,12 @@ use maud::{html, Markup, DOCTYPE};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
-    pages::{Page, NAV_PAGES},
+    pages::{Module, NAV_PAGES},
 };
 
-pub struct ProjectsPage;
+pub struct ProjectsApp;
 
-impl Page for ProjectsPage {
+impl Module for ProjectsApp {
     const TITLE: &'static str = "Projects";
     const BASE_PATH: &'static str = "/projects";
 
@@ -17,7 +17,7 @@ impl Page for ProjectsPage {
     }
 }
 
-impl ProjectsPage {
+impl ProjectsApp {
     async fn index() -> Markup {
         let head = HeadBuilder::new(Self::TITLE).build();
         let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();

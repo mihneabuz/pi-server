@@ -3,12 +3,12 @@ use maud::{html, Markup, DOCTYPE};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
-    pages::{BlogPage, Page, ProjectsPage, NAV_PAGES},
+    pages::{BlogApp, Module, ProjectsApp, NAV_PAGES},
 };
 
-pub struct HomePage;
+pub struct HomeApp;
 
-impl Page for HomePage {
+impl Module for HomeApp {
     const TITLE: &'static str = "Home";
     const BASE_PATH: &'static str = "/";
 
@@ -17,7 +17,7 @@ impl Page for HomePage {
     }
 }
 
-impl HomePage {
+impl HomeApp {
     async fn index() -> Markup {
         let head = HeadBuilder::new(Self::TITLE).build();
         let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
@@ -43,10 +43,10 @@ impl HomePage {
 
                     h3 class="my-4 text-2xl italic text-teal-500" {
                         "I like to build "
-                        a href=(ProjectsPage::BASE_PATH)
+                        a href=(ProjectsApp::BASE_PATH)
                             class="text-teal-400 transition-all hover:text-teal-200" { "stuff" }
                         " and sometimes "
-                        a href=(BlogPage::BASE_PATH)
+                        a href=(BlogApp::BASE_PATH)
                             class="text-teal-400 transition-all hover:text-teal-200" { "write" }
                         " about it."
                     }
