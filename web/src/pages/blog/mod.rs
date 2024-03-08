@@ -1,21 +1,20 @@
-mod item;
+mod entry;
+mod loader;
 
 use std::path::PathBuf;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use axum::{routing::get, Router};
 use maud::{html, Markup, DOCTYPE};
-use tracing::{info, warn};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
-    pages::{Module, NAV_PAGES},
+    pages::{blog::entry::Blog, blog::loader::BlogLoader, Module, NAV_PAGES},
+    static_page,
 };
 
-use item::BlogPage;
-
 pub struct BlogApp {
-    blogs: Vec<BlogPage>,
+    blogs: Vec<Blog>,
 }
 
 impl Module for BlogApp {
@@ -23,13 +22,11 @@ impl Module for BlogApp {
     const BASE_PATH: &'static str = "/blog";
 
     fn app(self) -> Router {
-        let index = self.index();
-        let mut inner = Router::new().route("/", get(move || async { index }));
+        let mut inner = Router::new().route("/", get(static_page!(self.index())));
 
         for blog in self.blogs {
             let path = format!("/{}", blog.title);
-            let rendered = blog.render();
-            inner = inner.route(&path, get(|| async { rendered }));
+            inner = inner.route(&path, get(static_page!(blog.render())));
         }
 
         Router::new().nest(Self::BASE_PATH, inner)
@@ -38,26 +35,7 @@ impl Module for BlogApp {
 
 impl BlogApp {
     pub async fn build(blogs_dir: PathBuf) -> Result<Self> {
-        let mut blogs = Vec::new();
-
-        let mut entries = tokio::fs::read_dir(&blogs_dir).await?;
-        while let Some(file) = entries.next_entry().await? {
-            if !file.file_type().await?.is_file() {
-                warn!(?file, "Unrecognized file type");
-                continue;
-            }
-
-            let blog = BlogPage::read(blogs_dir.join(file.file_name()))
-                .await
-                .context("Invalid blog file")?;
-
-            info!(title = blog.title, date = %blog.date, "Found blog");
-
-            blogs.push(blog);
-        }
-
-        info!(count = blogs.len(), "Done loading blogs");
-
+        let blogs = BlogLoader::read_dir(blogs_dir).await?;
         Ok(Self { blogs })
     }
 

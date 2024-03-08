@@ -17,6 +17,14 @@ pub trait Module {
     fn app(self) -> Router;
 }
 
+#[macro_export]
+macro_rules! static_page {
+    ($x:expr) => {{
+        let content = $x;
+        move || async { content }
+    }};
+}
+
 const NAV_PAGES: [NavEntry; 3] = [
     (HomeApp::TITLE, HomeApp::BASE_PATH),
     (BlogApp::TITLE, BlogApp::BASE_PATH),

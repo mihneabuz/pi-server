@@ -1,7 +1,5 @@
-use std::path::PathBuf;
-
 use chrono::NaiveDate;
-use markdown::{mdast::Node, to_mdast, ParseOptions};
+use markdown::mdast::Node;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use tracing::warn;
 
@@ -11,27 +9,13 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub struct BlogPage {
+pub struct Blog {
     pub title: String,
     pub date: NaiveDate,
     pub ast: Node,
 }
 
-impl BlogPage {
-    pub async fn read(path: PathBuf) -> Option<Self> {
-        let file_name = path.file_name()?.to_string_lossy();
-        let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
-
-        let content = tokio::fs::read_to_string(&path).await.ok()?;
-        let ast = to_mdast(&content, &ParseOptions::default()).unwrap();
-
-        Some(Self {
-            title: title.to_owned(),
-            date: NaiveDate::parse_from_str(date, "%Y-%m-%d").ok()?,
-            ast,
-        })
-    }
-
+impl Blog {
     pub fn render(self) -> Markup {
         let head = HeadBuilder::new(&self.title.replace('_', " ")).build();
         let nav = NavBuilder::new(&NAV_PAGES).build();
@@ -51,7 +35,7 @@ impl BlogPage {
     }
 }
 
-fn render_node(node: Node) -> Markup {
+pub fn render_node(node: Node) -> Markup {
     match node {
         Node::Root(root) => html! {
             div {
