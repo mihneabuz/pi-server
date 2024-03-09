@@ -24,14 +24,14 @@ impl<'a> HeadBuilder<'a> {
 
     pub fn script(mut self, src: &'a str) -> Self {
         self.extra.push(html! {
-            script src=(src);
+            script src=(src) {}
         });
         self
     }
 
     pub fn stylesheet(mut self, href: &'a str) -> Self {
         self.extra.push(html! {
-            link href=(href) rel="stylesheet";
+            link rel="stylesheet" type="text/css" href=(href);
         });
         self
     }

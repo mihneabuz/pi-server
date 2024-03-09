@@ -14,7 +14,7 @@ impl BlogLoader {
         let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
 
         let content = tokio::fs::read_to_string(&path).await.ok()?;
-        let ast = markdown::to_mdast(&content, &markdown::ParseOptions::default()).unwrap();
+        let ast = markdown::to_mdast(&content, &markdown::ParseOptions::gfm()).unwrap();
 
         Some(Blog {
             title: title.to_owned(),

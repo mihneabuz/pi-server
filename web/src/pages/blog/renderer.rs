@@ -5,8 +5,7 @@ use tracing::warn;
 macro_rules! render_children {
     ($x:expr) => {
         html! {
-            @for child in $x {
-                (render_markdown(child))
+            @for child in $x { (render_markdown(child))
             }
         }
     };
@@ -53,14 +52,23 @@ pub fn render_markdown(node: Node) -> Markup {
         },
 
         Node::Emphasis(emphasis) => html! {
-            span {
+            span class="italic" {
                 (render_children!(emphasis.children))
             }
         },
 
+        Node::Delete(delete) => html! {
+            span class="line-through" {
+                (render_children!(delete.children))
+            }
+        },
+
         Node::Code(code) => html! {
-            code {
-                (code.value)
+            pre class="my-2" {
+                @let lang = code.lang.map(|lang| format!("language-{}", lang)).unwrap_or_default();
+                code class=(format!("rounded-lg {lang}")) {
+                    (code.value)
+                }
             }
         },
 
@@ -70,9 +78,17 @@ pub fn render_markdown(node: Node) -> Markup {
             }
         },
 
-        Node::Math(_) => todo!(),
+        Node::Math(math) => html! {
+            math display="block" {
+                (math.value)
+            }
+        },
 
-        Node::InlineMath(_) => todo!(),
+        Node::InlineMath(math) => html! {
+            math display="inline" {
+                (math.value)
+            }
+        },
 
         Node::List(list) => {
             let children = render_children!(list.children);
@@ -92,41 +108,35 @@ pub fn render_markdown(node: Node) -> Markup {
             }
         },
 
-        Node::Table(_) => todo!(),
-
-        Node::TableRow(_) => todo!(),
-
-        Node::TableCell(_) => todo!(),
-
-        Node::Toml(_) => todo!(),
-
-        Node::Yaml(_) => todo!(),
-
         Node::Html(html) => html! {
             (PreEscaped(html.value))
         },
 
         Node::Image(image) => html! {
-            image class="my-2 mx-auto w-full aspect-auto" src=(image.url);
+            image class="my-2 mx-auto w-full aspect-auto" src=(image.url) alt=(image.alt);
         },
 
         Node::Link(link) => html! {
-            a href=(link.url) class="text-teal-500 transition-all hover:text-teal-200" {
+            a href=(link.url) class="text-teal-500 transition-all hover:text-teal-200 has-tooltip" {
                 (render_children!(link.children))
             }
         },
 
         Node::BlockQuote(block) => html! {
             div class="flex" {
-                div class="mr-2 ml-1 w-1 bg-neutral-400" {}
-                div class="grow text-neutral-400" {
+                div class="mr-2 ml-1 w-1 bg-neutral-300" {}
+                div class="grow text-neutral-300" {
                     (render_children!(block.children))
                 }
             }
         },
 
-        other => {
-            warn!(node = ?other, "Unimplemented MDX");
+        mut other => {
+            if let Some(children) = other.children_mut() {
+                children.clear();
+            }
+
+            warn!(node = ?other, "Unimplemented node");
             html! {}
         }
     }

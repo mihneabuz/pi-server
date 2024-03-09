@@ -16,7 +16,11 @@ pub struct Blog {
 
 impl Blog {
     pub fn render(self) -> Markup {
-        let head = HeadBuilder::new(&self.title.replace('_', " ")).build();
+        let head = HeadBuilder::new(&self.title.replace('_', " "))
+            .stylesheet("/public/highlight/theme.css")
+            .script("/public/highlight/highlight.min.js")
+            .build();
+
         let nav = NavBuilder::new(&NAV_PAGES).build();
 
         html! {
@@ -28,6 +32,7 @@ impl Blog {
                     div class="m-20 text-slate-200" {
                         (render_markdown(self.ast))
                     }
+                    script { "hljs.highlightAll();" }
                 }
             }
         }
