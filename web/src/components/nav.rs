@@ -35,7 +35,9 @@ impl NavBuilder {
 
     fn link(name: &str, path: &str, active: bool) -> Markup {
         let link = html! {
-            a href=(path) class="px-1 text-lg font-bold text-teal-500" { (name) }
+            a href=(path)
+                class="px-1 text-lg font-bold text-teal-500 transition-all hover:text-teal-200"
+                { (name) }
         };
 
         match active {

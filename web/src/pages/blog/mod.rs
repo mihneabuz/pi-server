@@ -1,5 +1,6 @@
 mod entry;
 mod loader;
+mod renderer;
 
 use std::path::PathBuf;
 
