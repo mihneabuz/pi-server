@@ -1,17 +1,25 @@
+use std::collections::HashSet;
+
 use markdown::mdast::Node;
 use maud::{html, Markup, PreEscaped};
 use tracing::warn;
 
-macro_rules! render_children {
-    ($x:expr) => {
-        html! {
-            @for child in $x { (render_markdown(child))
-            }
-        }
-    };
+pub fn render_markdown(node: Node) -> (Markup, Vec<String>) {
+    let mut langs = HashSet::new();
+    let markup = render(node, &mut langs);
+    (markup, langs.into_iter().collect())
 }
 
-pub fn render_markdown(node: Node) -> Markup {
+fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
+    macro_rules! render_children {
+        ($x:expr) => {
+            html! {
+                @for child in $x { (render(child, langs))
+                }
+            }
+        };
+    }
+
     match node {
         Node::Root(root) => html! {
             div {
@@ -63,14 +71,23 @@ pub fn render_markdown(node: Node) -> Markup {
             }
         },
 
-        Node::Code(code) => html! {
-            pre class="my-2" {
-                @let lang = code.lang.map(|lang| format!("language-{}", lang)).unwrap_or_default();
-                code class=(format!("rounded-lg {lang}")) {
-                    (code.value)
+        Node::Code(code) => {
+            let lang = code
+                .lang
+                .map(|lang| {
+                    langs.insert(lang.clone());
+                    format!("language-{}", lang)
+                })
+                .unwrap_or_default();
+
+            html! {
+                pre class="my-2" {
+                    code class=(format!("rounded-lg {lang}")) {
+                        (code.value)
+                    }
                 }
             }
-        },
+        }
 
         Node::InlineCode(code) => html! {
             code class="px-1 rounded bg-neutral-700" {
