@@ -14,7 +14,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
     macro_rules! render_children {
         ($x:expr) => {
             html! {
-                @for child in $x { (render(child, langs))
+                @for child in $x.children { (render(child, langs))
                 }
             }
         };
@@ -22,13 +22,13 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
     match node {
         Node::Root(root) => html! {
-            div {
-                (render_children!(root.children))
+            div class="text-slate-200" {
+                (render_children!(root))
             }
         },
 
         Node::Heading(heading) => {
-            let children = render_children!(heading.children);
+            let children = render_children!(heading);
 
             html! {
                 @match heading.depth {
@@ -45,7 +45,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
         Node::Paragraph(paragraph) => html! {
             p {
-                (render_children!(paragraph.children))
+                (render_children!(paragraph))
             }
         },
 
@@ -53,21 +53,25 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
             span { (text.value) }
         },
 
+        Node::Break(_) => html! {
+            br;
+        },
+
         Node::Strong(strong) => html! {
             strong {
-                (render_children!(strong.children))
+                (render_children!(strong))
             }
         },
 
         Node::Emphasis(emphasis) => html! {
             span class="italic" {
-                (render_children!(emphasis.children))
+                (render_children!(emphasis))
             }
         },
 
         Node::Delete(delete) => html! {
             span class="line-through" {
-                (render_children!(delete.children))
+                (render_children!(delete))
             }
         },
 
@@ -108,7 +112,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         },
 
         Node::List(list) => {
-            let children = render_children!(list.children);
+            let children = render_children!(list);
 
             html! {
                 @if list.ordered {
@@ -121,7 +125,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
         Node::ListItem(list_item) => html! {
             li class="ml-8" {
-                (render_children!(list_item.children))
+                (render_children!(list_item))
             }
         },
 
@@ -135,7 +139,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
         Node::Link(link) => html! {
             a href=(link.url) class="text-teal-500 transition-all hover:text-teal-200 has-tooltip" {
-                (render_children!(link.children))
+                (render_children!(link))
             }
         },
 
@@ -143,8 +147,26 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
             div class="flex" {
                 div class="mr-2 ml-1 w-1 bg-neutral-300" {}
                 div class="grow text-neutral-300" {
-                    (render_children!(block.children))
+                    (render_children!(block))
                 }
+            }
+        },
+
+        Node::Table(table) => html! {
+            table class="my-2 table-auto bg-zinc-800" {
+                (render_children!(table))
+            }
+        },
+
+        Node::TableRow(row) => html! {
+            tr {
+                (render_children!(row))
+            }
+        },
+
+        Node::TableCell(cell) => html! {
+            td class="py-2 px-4 border-2 border-neutral-600" {
+                (render_children!(cell))
             }
         },
 

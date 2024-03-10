@@ -26,11 +26,11 @@ impl Blog {
 
         html! {
             (DOCTYPE)
-            html class="h-full" {
+            html class="min-h-full" {
                 head { (head) }
-                body class="flex flex-col h-full bg-neutral-800" {
+                body class="flex flex-col min-h-full bg-neutral-800" {
                     (nav)
-                    div class="m-20 text-slate-200" {
+                    div class="m-20 grow" {
                         (rendered)
                     }
                     (highlight_script(&langs))
