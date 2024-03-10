@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use anyhow::{Context, Result};
 use chrono::NaiveDate;
@@ -9,8 +9,8 @@ use super::entry::Blog;
 pub struct BlogLoader;
 
 impl BlogLoader {
-    pub async fn read(path: PathBuf) -> Option<Blog> {
-        let file_name = path.file_name()?.to_string_lossy();
+    pub async fn read(path: impl AsRef<Path>) -> Option<Blog> {
+        let file_name = path.as_ref().file_name()?.to_string_lossy();
         let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
 
         let content = tokio::fs::read_to_string(&path).await.ok()?;
@@ -23,7 +23,7 @@ impl BlogLoader {
         })
     }
 
-    pub async fn read_dir(blogs_dir: PathBuf) -> Result<Vec<Blog>> {
+    pub async fn read_dir(blogs_dir: impl AsRef<Path>) -> Result<Vec<Blog>> {
         let mut blogs = Vec::new();
 
         let mut entries = tokio::fs::read_dir(&blogs_dir).await?;
@@ -33,7 +33,7 @@ impl BlogLoader {
                 continue;
             }
 
-            let blog = Self::read(blogs_dir.join(file.file_name()))
+            let blog = Self::read(blogs_dir.as_ref().join(file.file_name()))
                 .await
                 .context("Invalid blog file")?;
 

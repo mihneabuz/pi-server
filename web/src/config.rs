@@ -17,8 +17,15 @@ pub struct DeploymentSettings {
 }
 
 #[derive(Deserialize)]
+pub enum StaticFileCompression {
+    None,
+    Gzip,
+}
+
+#[derive(Deserialize)]
 pub struct AppSettings {
     pub public_dir: PathBuf,
+    pub compression: StaticFileCompression,
     pub blogs_dir: PathBuf,
 }
 

@@ -2,7 +2,7 @@ mod entry;
 mod loader;
 mod renderer;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use anyhow::Result;
 use axum::{routing::get, Router};
@@ -35,7 +35,7 @@ impl Module for BlogApp {
 }
 
 impl BlogApp {
-    pub async fn build(blogs_dir: PathBuf) -> Result<Self> {
+    pub async fn build(blogs_dir: impl AsRef<Path>) -> Result<Self> {
         let blogs = BlogLoader::read_dir(blogs_dir).await?;
         Ok(Self { blogs })
     }
