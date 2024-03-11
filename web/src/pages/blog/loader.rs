@@ -13,14 +13,12 @@ impl BlogLoader {
         let file_name = path.as_ref().file_name()?.to_string_lossy();
         let (date, title) = file_name.trim_end_matches(".md").split_once(':')?;
 
+        let date = NaiveDate::parse_from_str(date, "%Y-%m-%d").ok()?;
+
         let content = tokio::fs::read_to_string(&path).await.ok()?;
         let ast = markdown::to_mdast(&content, &markdown::ParseOptions::gfm()).unwrap();
 
-        Some(Blog {
-            title: title.to_owned(),
-            date: NaiveDate::parse_from_str(date, "%Y-%m-%d").ok()?,
-            ast,
-        })
+        Some(Blog::new(title.to_owned(), date, ast))
     }
 
     pub async fn read_dir(blogs_dir: impl AsRef<Path>) -> Result<Vec<Blog>> {
@@ -37,7 +35,7 @@ impl BlogLoader {
                 .await
                 .context("Invalid blog file")?;
 
-            info!(title = blog.title, date = %blog.date, "Found blog");
+            info!(title = blog.title(), date = %blog.date(), "Found blog");
 
             blogs.push(blog);
         }

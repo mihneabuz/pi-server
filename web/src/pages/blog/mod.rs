@@ -26,8 +26,7 @@ impl Module for BlogApp {
         let mut inner = Router::new().route("/", get(static_page!(self.index())));
 
         for blog in self.blogs {
-            let path = format!("/{}", blog.title);
-            inner = inner.route(&path, get(static_page!(blog.render())));
+            inner = inner.route(&blog.path(), get(static_page!(blog.render())));
         }
 
         Router::new().nest(Self::BASE_PATH, inner)
@@ -46,15 +45,30 @@ impl BlogApp {
 
         html! {
             (DOCTYPE)
-            html class="h-full" {
+            html class="min-h-full" {
                 head { (head) }
-                body class="flex flex-col h-full bg-neutral-800" {
+                body class="w-full min-h-full bg-neutral-800" {
                     (nav)
-                    div class="flex justify-center items-center grow" {
-                        h1 class="text-6xl font-bold text-slate-200" {
-                            "🚧 Under construction! 🚧"
+                    div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-4" {
+                        @for entry in self.blogs.iter() {
+                            (blog_entry(&entry))
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+fn blog_entry(blog: &Blog) -> Markup {
+    html! {
+        a href=(format!("/blog{}", blog.path())) class="bg-gradient-to-br to-teal-800 rounded from-zinc-800" {
+            div class="grid grid-rows-2 p-4 rounded transition-transform hover:scale-105 aspect-video" {
+                span class="flex justify-center items-end m-2 text-4xl font-bold text-slate-200" {
+                    (blog.title())
+                }
+                span class="flex justify-center items-start m-2 text-2xl italic text-slate-400" {
+                    (blog.date().format("%-d %B %Y"))
                 }
             }
         }

@@ -9,14 +9,22 @@ use crate::{
 
 #[derive(Clone, Debug)]
 pub struct Blog {
-    pub title: String,
-    pub date: NaiveDate,
-    pub ast: Node,
+    title: String,
+    date: NaiveDate,
+    ast: Node,
 }
 
 impl Blog {
+    pub fn new(title: String, date: NaiveDate, markdown: Node) -> Self {
+        Self {
+            title,
+            date,
+            ast: markdown,
+        }
+    }
+
     pub fn render(self) -> Markup {
-        let head = HeadBuilder::new(&self.title.replace('_', " "))
+        let head = HeadBuilder::new(&self.title())
             .stylesheet("/public/highlight/theme.css")
             .build();
 
@@ -37,6 +45,18 @@ impl Blog {
                 }
             }
         }
+    }
+
+    pub fn title(&self) -> String {
+        self.title.replace('_', " ")
+    }
+
+    pub fn path(&self) -> String {
+        format!("/{}", self.title)
+    }
+
+    pub fn date(&self) -> &NaiveDate {
+        &self.date
     }
 }
 
