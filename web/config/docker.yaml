@@ -1,0 +1,8 @@
+deploy:
+  addr: "0.0.0.0"
+  port: 3000
+
+app:
+  public_dir: "/app/public"
+  compression: "gzip"
+  blogs_dir: "/app/blogs"

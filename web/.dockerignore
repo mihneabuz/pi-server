@@ -1,0 +1,4 @@
+target
+public/styles.css
+public/*.gz
+public/**/*.gz

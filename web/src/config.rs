@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use config::{Config, File, FileFormat};
+use config::{Config, Environment, File, FileFormat};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -33,6 +33,7 @@ impl Settings {
     pub fn parse(file: &str) -> Result<Self> {
         let settings = Config::builder()
             .add_source(File::new(file, FileFormat::Yaml))
+            .add_source(Environment::default().separator("_"))
             .build()?;
 
         Ok(settings.try_deserialize()?)

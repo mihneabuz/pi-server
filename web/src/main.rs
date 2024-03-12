@@ -8,7 +8,7 @@ fn main() -> Result<()> {
     init_tracing();
 
     let config_file = env::args().nth(1).context("Missing config file")?;
-    let settings = Settings::parse(&config_file)?;
+    let settings = Settings::parse(&config_file).context("Incomplete configuration")?;
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(std::thread::available_parallelism().unwrap().get())
