@@ -37,10 +37,10 @@ WORKDIR /app
 COPY public/ public/
 COPY blogs/ blogs/
 
-RUN gzip -k -r public/*
-
 COPY --from=binary-builder /build/target/aarch64-unknown-linux-gnu/release/pi-web .
-COPY --from=tailwind-builder /tailwind/styles.css .
+COPY --from=tailwind-builder /tailwind/styles.css public/
+
+RUN find public \( -name "*.js" -or -name "*.css" \) -exec gzip -k {} \;
 
 COPY config/docker.yaml .
 
