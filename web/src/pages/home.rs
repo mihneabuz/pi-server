@@ -38,10 +38,10 @@ impl HomeApp {
         html! {
             div class="flex justify-center items-center grow" {
                 div class="w-[80%] lg:w-[60%]" {
-                    h3 class="my-1 text-3xl italic text-teal-500" { "Hi, my name is" }
-                    h1 class="my-2 text-5xl font-bold text-slate-200" { "Mihnea Buzatu" }
+                    h3 class="my-1 text-4xl italic text-teal-500" { "Hi, my name is" }
+                    h1 class="my-2 text-6xl font-bold text-slate-200" { "Mihnea Buzatu" }
 
-                    h3 class="my-4 text-3xl italic text-teal-500" {
+                    h3 class="my-4 text-4xl italic text-teal-500" {
                         "I like to build "
                         a href=(ProjectsApp::BASE_PATH)
                             class="text-teal-400 transition-all hover:text-teal-200" { "stuff" }

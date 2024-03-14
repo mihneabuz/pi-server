@@ -1,3 +1,0 @@
-# Test blog
-
-Hello

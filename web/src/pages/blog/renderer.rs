@@ -22,7 +22,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
     match node {
         Node::Root(root) => html! {
-            div class="text-slate-200" {
+            div class="text-2xl text-slate-200" {
                 (render_children!(root))
             }
         },
@@ -32,19 +32,19 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
             html! {
                 @match heading.depth {
-                    1 => h1 class="py-4 px-2 text-4xl font-bold" { (children) },
-                    2 => h2 class="py-4 px-2 text-3xl font-bold" { (children) },
-                    3 => h3 class="py-4 px-2 text-2xl font-bold" { (children) },
-                    4 => h4 class="py-4 px-2 text-xl font-bold" { (children) },
-                    5 => h5 class="py-4 px-2 text-lg font-bold" { (children) },
-                    6 => h6 class="py-4 px-2 font-bold" { (children) },
+                    1 => h1 class="py-4 text-5xl font-bold" { (children) },
+                    2 => h2 class="py-4 text-4xl font-bold" { (children) },
+                    3 => h3 class="py-4 text-3xl font-bold" { (children) },
+                    4 => h4 class="py-4 text-2xl font-bold" { (children) },
+                    5 => h5 class="py-4 text-2xl font-bold" { (children) },
+                    6 => h6 class="py-4 text-2xl font-bold" { (children) },
                     _ => p {},
                 }
             }
         }
 
         Node::Paragraph(paragraph) => html! {
-            p {
+            p class="my-4" {
                 (render_children!(paragraph))
             }
         },
@@ -85,7 +85,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
                 .unwrap_or_default();
 
             html! {
-                pre class="my-2" {
+                pre class="my-2 text-xl" {
                     code class=(format!("rounded-lg {lang}")) {
                         (code.value)
                     }
@@ -94,7 +94,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         }
 
         Node::InlineCode(code) => html! {
-            code class="px-1 rounded bg-neutral-700" {
+            code class="px-1 text-xl rounded bg-neutral-700" {
                 (code.value)
             }
         },
@@ -138,7 +138,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         },
 
         Node::Link(link) => html! {
-            a href=(link.url) class="text-teal-500 transition-all hover:text-teal-200 has-tooltip" {
+            a href=(link.url) target="_blank" class="text-teal-500 transition-all hover:text-teal-200 has-tooltip" {
                 (render_children!(link))
             }
         },

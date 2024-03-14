@@ -24,7 +24,7 @@ impl Blog {
     }
 
     pub fn render(self) -> Markup {
-        let head = HeadBuilder::new(&self.title())
+        let head = HeadBuilder::new(&self.title)
             .stylesheet("/public/highlight/theme.css")
             .build();
 
@@ -38,7 +38,7 @@ impl Blog {
                 head { (head) }
                 body class="flex flex-col min-h-full bg-neutral-800" {
                     (nav)
-                    div class="m-20 grow" {
+                    div class="m-20 xl:mx-auto xl:w-[80%] grow" {
                         (rendered)
                     }
                     (highlight_script(&langs))
