@@ -9,7 +9,11 @@ use axum::Router;
 use maud::{html, Markup};
 
 use crate::{
-    pages::{blog::entry::Blog, blog::loader::BlogLoader, Module},
+    pages::{
+        blog::{entry::Blog, loader::BlogLoader},
+        Module,
+    },
+    router::RouterExt,
     static_page,
 };
 
@@ -30,13 +34,13 @@ impl Module for BlogApp {
     const TITLE: &'static str = "Blog";
 
     fn app(self) -> Router {
-        let mut app = Router::new().route(Self::PATH, static_page!(self.index()));
-
-        for blog in self.blogs {
-            app = app.route(&blog.path(), static_page!(blog.render()));
-        }
-
-        app
+        Router::new()
+            .route(Self::PATH, static_page!(self.index()))
+            .route_iter(
+                self.blogs
+                    .into_iter()
+                    .map(|blog| (blog.path(), static_page!(blog.render()))),
+            )
     }
 
     fn content(&self) -> Markup {
