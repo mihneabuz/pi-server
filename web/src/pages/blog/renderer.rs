@@ -32,12 +32,12 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
 
             html! {
                 @match heading.depth {
-                    1 => h1 class="py-4 text-5xl font-bold" { (children) },
-                    2 => h2 class="py-4 text-4xl font-bold" { (children) },
-                    3 => h3 class="py-4 text-3xl font-bold" { (children) },
-                    4 => h4 class="py-4 text-2xl font-bold" { (children) },
-                    5 => h5 class="py-4 text-2xl font-bold" { (children) },
-                    6 => h6 class="py-4 text-2xl font-bold" { (children) },
+                    1 => h1 class="pt-4 pb-4 text-5xl font-bold" { (children) },
+                    2 => h2 class="pt-4 pb-2 text-4xl font-bold" { (children) },
+                    3 => h3 class="pt-4 pb-2 text-3xl font-bold" { (children) },
+                    4 => h4 class="pt-4 pb-2 text-2xl font-bold" { (children) },
+                    5 => h5 class="pt-4 pb-2 text-2xl font-bold" { (children) },
+                    6 => h6 class="pt-4 pb-2 text-2xl font-bold" { (children) },
                     _ => p {},
                 }
             }
@@ -146,7 +146,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         Node::BlockQuote(block) => html! {
             div class="flex" {
                 div class="mr-2 ml-1 w-1 bg-neutral-300" {}
-                div class="grow text-neutral-300" {
+                div class="grow text-neutral-400" {
                     (render_children!(block))
                 }
             }

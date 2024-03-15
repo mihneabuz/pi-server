@@ -4,7 +4,7 @@ use maud::{html, Markup, DOCTYPE};
 
 use crate::{
     components::{HeadBuilder, NavBuilder},
-    pages::{blog::renderer::render_markdown, NAV_PAGES},
+    pages::{blog::renderer::render_markdown, BlogApp, Module, NAV_PAGES},
 };
 
 #[derive(Clone, Debug)]
@@ -52,7 +52,7 @@ impl Blog {
     }
 
     pub fn path(&self) -> String {
-        format!("/{}", self.title)
+        format!("{}/{}", BlogApp::PATH, self.title)
     }
 
     pub fn date(&self) -> &NaiveDate {

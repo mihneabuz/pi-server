@@ -1,40 +1,37 @@
-use axum::{routing::get, Router};
+use axum::Router;
 use maud::{html, Markup, DOCTYPE};
 
 use crate::{
-    components::{HeadBuilder, NavBuilder},
-    pages::{BlogApp, Module, ProjectsApp, NAV_PAGES},
+    pages::{BlogApp, Module, ProjectsApp},
+    static_page,
 };
 
 pub struct HomeApp;
 
 impl Module for HomeApp {
+    const PATH: &'static str = "/";
     const TITLE: &'static str = "Home";
-    const BASE_PATH: &'static str = "/";
 
     fn app(self) -> Router {
-        Router::new().route(Self::BASE_PATH, get(Self::index))
+        Router::new().route(Self::PATH, static_page!(self.index()))
     }
 }
 
 impl HomeApp {
-    async fn index() -> Markup {
-        let head = HeadBuilder::new(Self::TITLE).build();
-        let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
-
+    fn index(&self) -> Markup {
         html! {
             (DOCTYPE)
             html class="h-full" {
-                head { (head) }
+                head { (self.head()) }
                 body class="flex flex-col h-full bg-neutral-800" {
-                    (nav)
-                    (Self::content())
+                    (self.nav())
+                    (self.content())
                 }
             }
         }
     }
 
-    fn content() -> Markup {
+    fn content(&self) -> Markup {
         html! {
             div class="flex justify-center items-center grow" {
                 div class="w-[80%] lg:w-[60%]" {
@@ -43,10 +40,10 @@ impl HomeApp {
 
                     h3 class="my-4 text-4xl italic text-teal-500" {
                         "I like to build "
-                        a href=(ProjectsApp::BASE_PATH)
+                        a href=(ProjectsApp::PATH)
                             class="text-teal-400 transition-all hover:text-teal-200" { "stuff" }
                         " and sometimes "
-                        a href=(BlogApp::BASE_PATH)
+                        a href=(BlogApp::PATH)
                             class="text-teal-400 transition-all hover:text-teal-200" { "write" }
                         " about it."
                     }

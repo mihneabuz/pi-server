@@ -1,6 +1,7 @@
 use std::env;
 
 use anyhow::{Context, Result};
+use tracing::info;
 
 use pi_web::{app::App, config::Settings, telemetry::init_tracing};
 
@@ -21,14 +22,20 @@ fn main() -> Result<()> {
 }
 
 async fn serve(settings: Settings) -> Result<()> {
+    info!("Creating listener");
+
     let listener = tokio::net::TcpListener::bind((settings.deploy.addr, settings.deploy.port))
         .await
         .context("Could not create listener")?;
+
+    info!("Building app");
 
     let app = App::new(settings.app)
         .build()
         .await
         .context("Could not create app")?;
+
+    info!("Serving app");
 
     axum::serve(listener, app).await.context("App failed")?;
 

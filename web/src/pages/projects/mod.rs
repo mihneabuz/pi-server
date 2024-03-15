@@ -1,40 +1,34 @@
-use axum::{routing::get, Router};
+use axum::Router;
 use maud::{html, Markup, DOCTYPE};
 
-use crate::{
-    components::{HeadBuilder, NavBuilder},
-    pages::{Module, NAV_PAGES},
-};
+use crate::{pages::Module, static_page};
 
 pub struct ProjectsApp;
 
 impl Module for ProjectsApp {
+    const PATH: &'static str = "/projects";
     const TITLE: &'static str = "Projects";
-    const BASE_PATH: &'static str = "/projects";
 
     fn app(self) -> Router {
-        Router::new().route(Self::BASE_PATH, get(Self::index))
+        Router::new().route(Self::PATH, static_page!(self.index()))
     }
 }
 
 impl ProjectsApp {
-    async fn index() -> Markup {
-        let head = HeadBuilder::new(Self::TITLE).build();
-        let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
-
+    fn index(&self) -> Markup {
         html! {
             (DOCTYPE)
             html class="h-full" {
-                head { (head) }
+                head { (self.head()) }
                 body class="flex flex-col h-full bg-neutral-800" {
-                    (nav)
-                    (Self::content())
+                    (self.nav())
+                    (self.content())
                 }
             }
         }
     }
 
-    fn content() -> Markup {
+    fn content(&self) -> Markup {
         html! {
             div class="flex justify-center items-center grow" {
                 h1 class="text-6xl font-bold text-slate-200" {

@@ -5,12 +5,11 @@ mod renderer;
 use std::path::Path;
 
 use anyhow::Result;
-use axum::{routing::get, Router};
+use axum::Router;
 use maud::{html, Markup, DOCTYPE};
 
 use crate::{
-    components::{HeadBuilder, NavBuilder},
-    pages::{blog::entry::Blog, blog::loader::BlogLoader, Module, NAV_PAGES},
+    pages::{blog::entry::Blog, blog::loader::BlogLoader, Module},
     static_page,
 };
 
@@ -19,36 +18,34 @@ pub struct BlogApp {
 }
 
 impl Module for BlogApp {
+    const PATH: &'static str = "/blog";
     const TITLE: &'static str = "Blog";
-    const BASE_PATH: &'static str = "/blog";
 
     fn app(self) -> Router {
-        let mut inner = Router::new().route("/", get(static_page!(self.index())));
+        let mut app = Router::new().route(Self::PATH, static_page!(self.index()));
 
         for blog in self.blogs {
-            inner = inner.route(&blog.path(), get(static_page!(blog.render())));
+            app = app.route(&blog.path(), static_page!(blog.render()));
         }
 
-        Router::new().nest(Self::BASE_PATH, inner)
+        app
     }
 }
 
 impl BlogApp {
     pub async fn build(blogs_dir: impl AsRef<Path>) -> Result<Self> {
-        let blogs = BlogLoader::read_dir(blogs_dir).await?;
-        Ok(Self { blogs })
+        Ok(Self {
+            blogs: BlogLoader::read_dir(blogs_dir).await?,
+        })
     }
 
     fn index(&self) -> Markup {
-        let head = HeadBuilder::new(Self::TITLE).build();
-        let nav = NavBuilder::new(&NAV_PAGES).active(Self::BASE_PATH).build();
-
         html! {
             (DOCTYPE)
             html class="min-h-full" {
-                head { (head) }
+                head { (self.head()) }
                 body class="w-full min-h-full bg-neutral-800" {
-                    (nav)
+                    (self.nav())
                     div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-4" {
                         @for entry in self.blogs.iter() {
                             (blog_entry(&entry))
@@ -62,7 +59,7 @@ impl BlogApp {
 
 fn blog_entry(blog: &Blog) -> Markup {
     html! {
-        a href=(format!("/blog{}", blog.path())) class="bg-gradient-to-br to-teal-800 rounded from-zinc-800" {
+        a href=(blog.path()) class="bg-gradient-to-br to-teal-800 rounded from-zinc-800" {
             div class="grid grid-rows-2 p-4 rounded transition-transform hover:scale-105 aspect-video" {
                 span class="flex justify-center items-end m-2 text-4xl font-bold text-slate-200" {
                     (blog.title())
