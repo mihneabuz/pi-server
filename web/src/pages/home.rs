@@ -1,35 +1,12 @@
-use axum::Router;
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup};
 
-use crate::{
-    pages::{BlogApp, Module, ProjectsApp},
-    static_page,
-};
+use crate::pages::{BlogApp, Module, ProjectsApp};
 
 pub struct HomeApp;
 
 impl Module for HomeApp {
     const PATH: &'static str = "/";
     const TITLE: &'static str = "Home";
-
-    fn app(self) -> Router {
-        Router::new().route(Self::PATH, static_page!(self.index()))
-    }
-}
-
-impl HomeApp {
-    fn index(&self) -> Markup {
-        html! {
-            (DOCTYPE)
-            html class="h-full" {
-                head { (self.head()) }
-                body class="flex flex-col h-full bg-neutral-800" {
-                    (self.nav())
-                    (self.content())
-                }
-            }
-        }
-    }
 
     fn content(&self) -> Markup {
         html! {

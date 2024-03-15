@@ -6,7 +6,7 @@ use std::path::Path;
 
 use anyhow::Result;
 use axum::Router;
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup};
 
 use crate::{
     pages::{blog::entry::Blog, blog::loader::BlogLoader, Module},
@@ -15,6 +15,14 @@ use crate::{
 
 pub struct BlogApp {
     blogs: Vec<Blog>,
+}
+
+impl BlogApp {
+    pub async fn build(blogs_dir: impl AsRef<Path>) -> Result<Self> {
+        Ok(Self {
+            blogs: BlogLoader::read_dir(blogs_dir).await?,
+        })
+    }
 }
 
 impl Module for BlogApp {
@@ -30,27 +38,12 @@ impl Module for BlogApp {
 
         app
     }
-}
 
-impl BlogApp {
-    pub async fn build(blogs_dir: impl AsRef<Path>) -> Result<Self> {
-        Ok(Self {
-            blogs: BlogLoader::read_dir(blogs_dir).await?,
-        })
-    }
-
-    fn index(&self) -> Markup {
+    fn content(&self) -> Markup {
         html! {
-            (DOCTYPE)
-            html class="min-h-full" {
-                head { (self.head()) }
-                body class="w-full min-h-full bg-neutral-800" {
-                    (self.nav())
-                    div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-4" {
-                        @for entry in self.blogs.iter() {
-                            (blog_entry(&entry))
-                        }
-                    }
+            div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-3" {
+                @for entry in self.blogs.iter() {
+                    (blog_entry(&entry))
                 }
             }
         }

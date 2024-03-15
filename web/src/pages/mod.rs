@@ -9,15 +9,23 @@ pub use projects::*;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use axum::Router;
-use maud::Markup;
+use maud::{html, Markup, DOCTYPE};
 
-use crate::components::{HeadBuilder, NavBuilder, NavEntry};
+use crate::{
+    components::{HeadBuilder, NavBuilder, NavEntry},
+    static_page,
+};
 
 pub trait Module {
     const TITLE: &'static str;
     const PATH: &'static str;
 
-    fn app(self) -> Router;
+    fn app(self) -> Router
+    where
+        Self: Sized,
+    {
+        Router::new().route(Self::PATH, static_page!(self.index()))
+    }
 
     fn nav(&self) -> Markup {
         NavBuilder::new(&NAV_PAGES).active(Self::PATH).build()
@@ -25,6 +33,21 @@ pub trait Module {
 
     fn head(&self) -> Markup {
         HeadBuilder::new(Self::TITLE).build()
+    }
+
+    fn content(&self) -> Markup;
+
+    fn index(&self) -> Markup {
+        html! {
+            (DOCTYPE)
+            html class="flex flex-col min-h-full" {
+                head { (self.head()) }
+                body class="flex flex-col min-h-full grow bg-neutral-800" {
+                    (self.nav())
+                    (self.content())
+                }
+            }
+        }
     }
 }
 
