@@ -2,7 +2,7 @@
 name = "game-of-life"
 version = "0.1.0"
 authors = ["mihneabuz <mihneabuzatu88@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -14,7 +14,7 @@ bitvec = "1.0.1"
 [dependencies.web-sys]
 version = "0.3"
 features = [
-  "Window", "Document", "Element", "HtmlElement", "Node", "HtmlCollection", "CssStyleDeclaration", "console"
+  "Window", "Document", "Element", "HtmlElement", "Node", "HtmlCollection"
 ]
 
 [profile.release]

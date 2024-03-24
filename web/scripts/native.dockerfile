@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM rust:latest AS binary-builder
+FROM rust:latest AS binary-builder
 
 WORKDIR /build
 
@@ -8,7 +8,7 @@ COPY src/ src/
 RUN ["cargo", "build", "--release"]
 
 
-FROM --platform=$BUILDPLATFORM node:18.4 AS tailwind-builder
+FROM node:18.4 AS tailwind-builder
 
 WORKDIR /tailwind
 
@@ -20,7 +20,12 @@ RUN npm i -g tailwindcss
 RUN tailwindcss -i styles.css -o styles.css -m
 
 
-FROM --platform=$TARGETPLATFORM debian:bookworm-slim AS runner
+FROM rust:latest AS wasm-builder
+
+WORKDIR /wasm
+
+
+FROM debian:bookworm-slim AS runner
 
 WORKDIR /app
 
