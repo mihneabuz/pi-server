@@ -1,18 +1,45 @@
 <html>
-  <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-  </head>
-  <body>
-    <!-- Note the usage of `type=module` here as this is an ES6 module -->
-    <script type="module">
-      import init from './pkg/game_of_life.js';
 
-      async function run() {
-        await init();
-      }
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+  <style>
+    #game {
+      box-sizing: border-box;
+      border: 4px solid red;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(40, 1fr);
+    }
 
-      run();
-    </script>
-  </body>
+    #game>div {
+      box-sizing: border-box;
+      border: 1px solid gray;
+      aspect-ratio: 1;
+    }
+
+    #game>.alive {
+      background: black;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="module">
+    import init, {Game} from './pkg/game_of_life.js';
+    init().then(() => {
+      new Game("#game", 40, 40)
+        .timeout(100)
+        .attach_step("#step")
+        .attach_start("#start")
+        .attach_stop("#stop")
+        .attach_toggle("#toggle");
+    })
+  </script>
+  <button id="step">STEP</button>
+  <button id="start">START</button>
+  <button id="stop">STOP</button>
+  <button id="toggle">TOGGLE</button>
+  <div id="game"></div>
+</body>
+
 </html>
-
