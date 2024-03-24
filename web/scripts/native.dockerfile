@@ -5,7 +5,7 @@ WORKDIR /build
 COPY Cargo.toml Cargo.lock ./
 COPY src/ src/
 
-RUN ["cargo", "build", "--release"]
+RUN cargo build --release
 
 
 FROM node:18.4 AS tailwind-builder
@@ -24,6 +24,12 @@ FROM rust:latest AS wasm-builder
 
 WORKDIR /wasm
 
+RUN cargo install wasm-pack
+
+COPY wasm ./
+
+RUN for app in *; do wasm-pack build --release --target web ${app}; done
+
 
 FROM debian:bookworm-slim AS runner
 
@@ -34,8 +40,9 @@ COPY blogs/ blogs/
 
 COPY --from=binary-builder /build/target/release/pi-web .
 COPY --from=tailwind-builder /tailwind/styles.css public/
+COPY --from=wasm-builder /wasm/*/pkg/*.js /wasm/*/pkg/*.wasm public/wasm/
 
-RUN find public \( -name "*.js" -or -name "*.css" \) -exec gzip -k {} \;
+RUN find public \( -name "*.js" -or -name "*.css" -or -name "*.wasm" \) -exec gzip -k {} \;
 
 COPY config/docker.yaml .
 

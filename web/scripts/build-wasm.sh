@@ -2,11 +2,13 @@
 
 apps="$(pwd)/public/wasm"
 
+rm -r "${apps}"
+mkdir -p "${apps}"
+
 for wasmapp in wasm/*; do
-  pushd $wasmapp
+  pushd "${wasmapp}"
 
   wasm-pack build --release --target web
 
-  mkdir -p "${apps}"
-  cp -r pkg/* "${apps}"
+  cp -r pkg/*.wasm pkg/*.js "${apps}"
 done
