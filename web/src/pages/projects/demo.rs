@@ -49,11 +49,11 @@ impl Module for DemoGame {
             h1 class="m-20 text-5xl text-slate-200" {
                 "Conway's Game of Life"
             }
-            div class="flex justify-around items-center mx-20 mt-10 mb-5 w-72" {
-                button #start class="text-2xl font-bold text-teal-500" { "Start" }
-                button #stop  class="text-2xl font-bold text-red-500" { "Stop" }
+            div class="flex justify-around items-center mx-20 mt-10 w-72 text-3xl font-bold" {
+                button #start class="text-teal-500 transition-colors hover:text-teal-400" { "Start" }
+                button #stop  class="text-red-500 transition-colors hover:text-red-400" { "Stop" }
             }
-            div #game class="grid my-5 mx-20 rounded border-4 border-teal-700" {}
+            div #game class="grid my-10 mx-20 rounded border-4 border-teal-700" {}
             style { (PreEscaped(styles)) }
             script type="module" { (PreEscaped(script)) }
         }

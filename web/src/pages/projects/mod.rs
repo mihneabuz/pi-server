@@ -3,7 +3,7 @@ mod demo;
 use axum::Router;
 use maud::{html, Markup};
 
-use crate::{pages::Module, static_page};
+use crate::{components::Card, pages::Module, static_page};
 
 use self::demo::DemoGame;
 
@@ -20,10 +20,14 @@ impl Module for ProjectsApp {
     }
 
     fn content(&self) -> Markup {
+        let cards = [Card::new("Game of Life")
+            .description("Demo app powered by WASM")
+            .link_to(DemoGame::PATH)];
+
         html! {
-            div class="flex justify-center items-center grow" {
-                h1 class="text-6xl font-bold text-slate-200" {
-                    "🚧 Under construction! 🚧"
+            div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-3" {
+                @for card in cards.into_iter() {
+                    (card.build())
                 }
             }
         }
