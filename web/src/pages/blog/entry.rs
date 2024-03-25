@@ -1,10 +1,10 @@
 use chrono::NaiveDate;
 use markdown::mdast::Node;
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup};
 
 use crate::{
-    components::{HeadBuilder, NavBuilder},
-    pages::{blog::renderer::render_markdown, BlogApp, Module, NAV_PAGES},
+    components::{Card, HeadBuilder},
+    pages::{blog::renderer::render_markdown, BlogApp, DynamicModule, Module},
 };
 
 #[derive(Clone, Debug)]
@@ -23,40 +23,42 @@ impl Blog {
         }
     }
 
-    pub fn render(self) -> Markup {
-        let head = HeadBuilder::new(&self.title)
-            .stylesheet("/public/highlight/theme.css")
-            .build();
-
-        let nav = NavBuilder::new(&NAV_PAGES).build();
-
-        let (rendered, langs) = render_markdown(self.ast);
-
-        html! {
-            (DOCTYPE)
-            html class="min-h-full" {
-                head { (head) }
-                body class="flex flex-col min-h-full bg-neutral-800" {
-                    (nav)
-                    div class="m-20 xl:mx-auto xl:w-[80%] grow" {
-                        (rendered)
-                    }
-                    (highlight_script(&langs))
-                }
-            }
-        }
+    pub fn date(&self) -> &NaiveDate {
+        &self.date
     }
 
-    pub fn title(&self) -> String {
-        self.title.replace('_', " ")
+    pub fn card(&self) -> Markup {
+        Card::new(self.title())
+            .description(self.date().format("%-d %B %Y"))
+            .link_to(self.path())
+            .build()
     }
+}
 
-    pub fn path(&self) -> String {
+impl DynamicModule for Blog {
+    fn path(&self) -> String {
         format!("{}/{}", BlogApp::PATH, self.title)
     }
 
-    pub fn date(&self) -> &NaiveDate {
-        &self.date
+    fn title(&self) -> String {
+        self.title.replace('_', " ")
+    }
+
+    fn head(&self) -> Markup {
+        HeadBuilder::new(&self.title)
+            .stylesheet("/public/highlight/theme.css")
+            .build()
+    }
+
+    fn content(&self) -> Markup {
+        let (rendered, langs) = render_markdown(&self.ast);
+
+        html! {
+            div class="m-20 xl:mx-auto xl:w-[80%] grow" {
+                (rendered)
+            }
+            (highlight_script(&langs))
+        }
     }
 }
 

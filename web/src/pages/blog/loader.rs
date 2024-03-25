@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use chrono::NaiveDate;
 use tracing::{info, warn};
 
-use super::entry::Blog;
+use crate::pages::{blog::entry::Blog, DynamicModule};
 
 pub struct BlogLoader;
 

@@ -3,7 +3,7 @@ mod demo;
 use axum::Router;
 use maud::{html, Markup};
 
-use crate::{components::Card, pages::Module, static_page};
+use crate::{components::Card, pages::Module, router::RouterExt, static_page};
 
 use self::demo::DemoGame;
 
@@ -16,7 +16,7 @@ impl Module for ProjectsApp {
     fn app(self) -> Router {
         Router::new()
             .route(Self::PATH, static_page!(self.index()))
-            .merge(DemoGame.app())
+            .merge_module(DemoGame)
     }
 
     fn content(&self) -> Markup {

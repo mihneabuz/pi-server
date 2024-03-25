@@ -9,7 +9,6 @@ use axum::Router;
 use maud::{html, Markup};
 
 use crate::{
-    components::Card,
     pages::{
         blog::{entry::Blog, loader::BlogLoader},
         Module,
@@ -36,28 +35,17 @@ impl Module for BlogApp {
 
     fn app(self) -> Router {
         Router::new()
-            .route(Self::PATH, static_page!(self.index()))
-            .route_iter(
-                self.blogs
-                    .into_iter()
-                    .map(|blog| (blog.path(), static_page!(blog.render()))),
-            )
+            .route(Self::PATH, static_page!(Module::index(&self)))
+            .merge_modules(self.blogs.into_iter())
     }
 
     fn content(&self) -> Markup {
         html! {
             div class="grid grid-cols-1 gap-16 m-20 lg:grid-cols-2 2xl:grid-cols-3" {
                 @for entry in self.blogs.iter() {
-                    (blog_entry(&entry))
+                    (entry.card())
                 }
             }
         }
     }
-}
-
-fn blog_entry(blog: &Blog) -> Markup {
-    Card::new(blog.title())
-        .description(blog.date().format("%-d %B %Y"))
-        .link_to(blog.path())
-        .build()
 }

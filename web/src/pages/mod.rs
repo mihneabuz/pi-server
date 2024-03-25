@@ -1,57 +1,16 @@
 mod blog;
 mod home;
 mod projects;
+mod traits;
 
 pub use blog::*;
 pub use home::*;
 pub use projects::*;
+pub use traits::*;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use axum::Router;
-use maud::{html, Markup, DOCTYPE};
-
-use crate::{
-    components::{HeadBuilder, NavBuilder, NavEntry},
-    static_page,
-};
-
-pub trait Module {
-    const TITLE: &'static str;
-    const PATH: &'static str;
-
-    fn app(self) -> Router
-    where
-        Self: Sized,
-    {
-        Router::new().route(Self::PATH, static_page!(self.index()))
-    }
-
-    fn nav(&self) -> Markup {
-        NavBuilder::new(&NAV_PAGES).active(Self::PATH).build()
-    }
-
-    fn head(&self) -> Markup {
-        HeadBuilder::new(Self::TITLE).build()
-    }
-
-    fn content(&self) -> Markup;
-
-    fn index(&self) -> Markup {
-        html! {
-            (DOCTYPE)
-            html class="flex flex-col min-h-full" {
-                head { (self.head()) }
-                body class="flex flex-col min-h-full grow bg-neutral-800" {
-                    (self.nav())
-                    (self.content())
-                }
-            }
-        }
-    }
-}
-
-const NAV_PAGES: [NavEntry; 3] = [
+const NAV_PAGES: [crate::components::NavEntry; 3] = [
     (HomeApp::TITLE, HomeApp::PATH),
     (BlogApp::TITLE, BlogApp::PATH),
     (ProjectsApp::TITLE, ProjectsApp::PATH),

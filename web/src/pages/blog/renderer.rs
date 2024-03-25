@@ -4,17 +4,17 @@ use markdown::mdast::Node;
 use maud::{html, Markup, PreEscaped};
 use tracing::warn;
 
-pub fn render_markdown(node: Node) -> (Markup, Vec<String>) {
+pub fn render_markdown(node: &Node) -> (Markup, Vec<String>) {
     let mut langs = HashSet::new();
     let markup = render(node, &mut langs);
     (markup, langs.into_iter().collect())
 }
 
-fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
+fn render(node: &Node, langs: &mut HashSet<String>) -> Markup {
     macro_rules! render_children {
         ($x:expr) => {
             html! {
-                @for child in $x.children { (render(child, langs))
+                @for child in $x.children.iter() { (render(&child, langs))
                 }
             }
         };
@@ -78,6 +78,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         Node::Code(code) => {
             let lang = code
                 .lang
+                .as_ref()
                 .map(|lang| {
                     langs.insert(lang.clone());
                     format!("language-{}", lang)
@@ -130,7 +131,7 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
         },
 
         Node::Html(html) => html! {
-            (PreEscaped(html.value))
+            (PreEscaped(html.value.to_owned()))
         },
 
         Node::Image(image) => html! {
@@ -170,12 +171,13 @@ fn render(node: Node, langs: &mut HashSet<String>) -> Markup {
             }
         },
 
-        mut other => {
-            if let Some(children) = other.children_mut() {
+        other => {
+            let mut human_readable = other.clone();
+            if let Some(children) = human_readable.children_mut() {
                 children.clear();
             }
 
-            warn!(node = ?other, "Unimplemented node");
+            warn!(node = ?human_readable, "Unimplemented node");
             html! {}
         }
     }
