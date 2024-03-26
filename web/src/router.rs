@@ -1,6 +1,6 @@
 use axum::{routing::MethodRouter, Router};
 
-use crate::pages::DynamicModule;
+use crate::{middleware::Middleware, pages::DynamicModule};
 
 pub trait RouterExt<S> {
     fn route_iter<I>(self, iter: I) -> Self
@@ -19,6 +19,10 @@ pub trait RouterExt<S> {
     where
         M: DynamicModule<S>,
         I: Iterator<Item = M>;
+
+    fn middleware<M>(self, middleware: M) -> Self
+    where
+        M: Middleware;
 }
 
 impl<S> RouterExt<S> for Router<S>
@@ -60,5 +64,12 @@ where
         I: Iterator<Item = M>,
     {
         self.merge_iter(iter.map(|module| module.app()))
+    }
+
+    fn middleware<M>(self, middleware: M) -> Self
+    where
+        M: Middleware,
+    {
+        middleware.attach(self)
     }
 }

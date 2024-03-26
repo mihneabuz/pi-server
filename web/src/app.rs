@@ -1,12 +1,13 @@
 use anyhow::Result;
 use axum::{http::StatusCode, response::IntoResponse, Router};
-use tower_http::{services::ServeDir, trace::TraceLayer};
+use tower_http::services::ServeDir;
 
 use crate::{
     config::{AppSettings, StaticFileCompression},
     info_cached_memory,
-    pages::{BlogApp, HomeApp, Module, ProjectsApp},
-    telemetry::MakeSpanWithId,
+    middleware::{RateLimit, Tracing},
+    pages::{BlogApp, HomeApp, ProjectsApp},
+    router::RouterExt,
 };
 
 pub struct App {
@@ -28,14 +29,13 @@ impl App {
     }
 
     pub async fn build(self) -> Result<Router> {
-        let trace_layer = TraceLayer::new_for_http().make_span_with(MakeSpanWithId);
-
         let app = Router::new()
             .nest_service("/public", self.serve_static())
-            .merge(HomeApp.app())
-            .merge(BlogApp::build(self.settings.blogs_dir).await?.app())
-            .merge(ProjectsApp.app())
-            .layer(trace_layer)
+            .merge_module(HomeApp)
+            .merge_module(BlogApp::build(self.settings.blogs_dir).await?)
+            .merge_module(ProjectsApp)
+            .middleware(Tracing)
+            .middleware(RateLimit)
             .fallback(not_found);
 
         info_cached_memory!();
