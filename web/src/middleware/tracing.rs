@@ -1,7 +1,7 @@
 use axum::Router;
 use tower_http::trace::{MakeSpan, TraceLayer};
 
-use super::Middleware;
+use crate::middleware::Middleware;
 
 #[derive(Clone)]
 struct MakeSpanWithId;

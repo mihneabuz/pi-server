@@ -5,7 +5,7 @@ use tower_http::services::ServeDir;
 use crate::{
     config::{AppSettings, StaticFileCompression},
     info_cached_memory,
-    middleware::{RateLimit, Tracing},
+    middleware::{ConnectionLimit, RateLimit, Tracing},
     pages::{BlogApp, HomeApp, ProjectsApp},
     router::RouterExt,
 };
@@ -36,6 +36,7 @@ impl App {
             .merge_module(ProjectsApp)
             .middleware(Tracing)
             .middleware(RateLimit::new(self.settings.rate_limit))
+            .middleware(ConnectionLimit::new(self.settings.conn_limit))
             .fallback(not_found);
 
         info_cached_memory!();

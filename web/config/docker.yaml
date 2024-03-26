@@ -8,6 +8,7 @@ app:
 
   blogs_dir: "/app/blogs"
 
+  conn_limit: 1024
   rate_limit:
     max_allowed: 30
     per_seconds: 3

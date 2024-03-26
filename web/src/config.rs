@@ -28,6 +28,7 @@ pub struct AppSettings {
     pub compression: StaticFileCompression,
     pub blogs_dir: PathBuf,
     pub rate_limit: RateLimitSettings,
+    pub conn_limit: u32
 }
 
 #[derive(Deserialize)]
