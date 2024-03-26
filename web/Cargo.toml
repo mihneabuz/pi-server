@@ -19,9 +19,9 @@ markdown = "1.0.0-alpha.16"
 maud = { version = "0.26", features = ["axum"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
-tower = { version = "0.4", features = ["buffer", "limit"] }
+tower = "0.4"
 tower-http = { version = "0.5", features = ["fs", "trace", "util"] }
-tower_governor = "0.3"
+tower_governor = { version = "0.3", features = ["axum", "tracing"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 ulid = "1"

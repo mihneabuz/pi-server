@@ -35,7 +35,7 @@ impl App {
             .merge_module(BlogApp::build(self.settings.blogs_dir).await?)
             .merge_module(ProjectsApp)
             .middleware(Tracing)
-            .middleware(RateLimit)
+            .middleware(RateLimit::new(self.settings.rate_limit))
             .fallback(not_found);
 
         info_cached_memory!();

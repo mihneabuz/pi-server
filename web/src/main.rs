@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, net::SocketAddr};
 
 use anyhow::{Context, Result};
 use tracing::info;
@@ -33,7 +33,8 @@ async fn serve(settings: Settings) -> Result<()> {
     let app = App::new(settings.app)
         .build()
         .await
-        .context("Could not create app")?;
+        .context("Could not create app")?
+        .into_make_service_with_connect_info::<SocketAddr>();
 
     info!("Serving app");
 

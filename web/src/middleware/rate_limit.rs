@@ -1,26 +1,46 @@
-use std::time::Duration;
+use axum::{
+    body::Body,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
+use tower_governor::{governor::GovernorConfigBuilder, GovernorError, GovernorLayer};
 
-use axum::{error_handling::HandleErrorLayer, http::StatusCode, response::IntoResponse, BoxError};
-use tower::{buffer::BufferLayer, limit::RateLimitLayer, ServiceBuilder};
+use crate::{config::RateLimitSettings, middleware::Middleware};
 
-use super::Middleware;
+pub struct RateLimit {
+    max_allowed: u32,
+    per_seconds: u32,
+}
 
-pub struct RateLimit;
+impl RateLimit {
+    pub fn new(settings: RateLimitSettings) -> Self {
+        Self {
+            max_allowed: settings.max_allowed,
+            per_seconds: settings.per_seconds,
+        }
+    }
+}
 
 impl Middleware for RateLimit {
     fn attach<S>(self, router: axum::Router<S>) -> axum::Router<S>
     where
         S: Clone + Send + Sync + 'static,
     {
-        router.layer(
-            ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(rate_limit_error))
-                .layer(BufferLayer::new(1024))
-                .layer(RateLimitLayer::new(10, Duration::from_secs(1))),
-        )
+        let config = Box::new(
+            GovernorConfigBuilder::default()
+                .per_second(self.per_seconds as u64)
+                .burst_size(self.max_allowed)
+                .error_handler(rate_limit_error)
+                .finish()
+                .unwrap(),
+        );
+
+        router.layer(GovernorLayer {
+            config: Box::leak(config),
+        })
     }
 }
 
-async fn rate_limit_error(_: BoxError) -> impl IntoResponse {
-    (StatusCode::TOO_MANY_REQUESTS, "Slow down please")
+fn rate_limit_error(_: GovernorError) -> Response<Body> {
+    (StatusCode::TOO_MANY_REQUESTS, "Slow down").into_response()
 }

@@ -5,4 +5,9 @@ deploy:
 app:
   public_dir: "/app/public"
   compression: "gzip"
+
   blogs_dir: "/app/blogs"
+
+  rate_limit:
+    max_allowed: 30
+    per_seconds: 3
