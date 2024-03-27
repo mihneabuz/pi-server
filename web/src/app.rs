@@ -20,11 +20,12 @@ impl App {
     }
 
     pub fn serve_static(&self) -> ServeDir {
-        let dir = &self.settings.public_dir;
+        let serve = ServeDir::new(&self.settings.public_dir);
 
         match self.settings.compression {
-            StaticFileCompression::None => ServeDir::new(dir),
-            StaticFileCompression::Gzip => ServeDir::new(dir).precompressed_gzip(),
+            StaticFileCompression::None => serve,
+            StaticFileCompression::Gzip => serve.precompressed_gzip(),
+            StaticFileCompression::Brotli => serve.precompressed_br(),
         }
     }
 

@@ -2,4 +2,6 @@ target
 public/styles.css
 public/*.gz
 public/**/*.gz
+public/*.br
+public/**/*.br
 public/wasm/

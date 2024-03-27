@@ -24,7 +24,6 @@ impl Middleware for ConnectionLimit {
     where
         S: Clone + Send + Sync + 'static,
     {
-        tracing::info!("MAX CONNECTIONS: {}", self.limit);
         router.layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(connection_limit_error))

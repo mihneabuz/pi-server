@@ -20,6 +20,7 @@ pub struct DeploymentSettings {
 pub enum StaticFileCompression {
     None,
     Gzip,
+    Brotli,
 }
 
 #[derive(Deserialize)]
