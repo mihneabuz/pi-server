@@ -3,10 +3,10 @@ use std::{env, net::SocketAddr};
 use anyhow::{Context, Result};
 use tracing::info;
 
-use pi_web::{app::App, config::Settings, telemetry::init_tracing};
+use pi_web::{app::App, config::Settings, statistics, telemetry};
 
 fn main() -> Result<()> {
-    init_tracing();
+    telemetry::init_tracing();
 
     let config_file = env::args().nth(1).context("Missing config file")?;
     let settings = Settings::parse(&config_file).context("Incomplete configuration")?;
@@ -37,6 +37,8 @@ async fn serve(settings: Settings) -> Result<()> {
         .into_make_service_with_connect_info::<SocketAddr>();
 
     info!("Serving app");
+
+    statistics::spawn_tracing();
 
     axum::serve(listener, app).await.context("App failed")?;
 

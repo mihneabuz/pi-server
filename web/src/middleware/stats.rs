@@ -1,7 +1,6 @@
 use std::{
     future::Future,
     pin::Pin,
-    sync::atomic::Ordering,
     task::{ready, Context, Poll},
 };
 
@@ -9,7 +8,7 @@ use axum::{http::Request, response::Response};
 use pin_project_lite::pin_project;
 use tower::{Layer, Service};
 
-use crate::statistics;
+use crate::statistics::Statistics;
 
 use super::Middleware;
 
@@ -54,7 +53,7 @@ where
         let this = self.project();
         let response = ready!(this.inner.poll(cx))?;
 
-        statistics::SERVED.fetch_add(10, Ordering::Relaxed);
+        Statistics::register(response.status());
 
         Poll::Ready(Ok(response))
     }
