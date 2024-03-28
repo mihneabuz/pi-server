@@ -45,7 +45,7 @@ impl DynamicModule for Blog {
     }
 
     fn head(&self) -> Markup {
-        HeadBuilder::new(&self.title)
+        HeadBuilder::new(&self.title())
             .stylesheet("/public/highlight/theme.css")
             .build()
     }

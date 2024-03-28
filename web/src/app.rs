@@ -41,6 +41,9 @@ impl App {
             .middleware(Stats)
             .fallback(not_found);
 
+        #[cfg(debug_assertions)]
+        let app = app.layer(tower_livereload::LiveReloadLayer::new());
+
         info_cached_memory!();
 
         Ok(app)
