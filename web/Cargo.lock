@@ -967,6 +967,7 @@ dependencies = [
  "config",
  "markdown",
  "maud",
+ "pin-project-lite",
  "serde",
  "tokio",
  "tower",

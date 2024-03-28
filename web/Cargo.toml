@@ -17,6 +17,7 @@ chrono = "0.4"
 config = "0.14"
 markdown = "1.0.0-alpha.16"
 maud = { version = "0.26", features = ["axum"] }
+pin-project-lite = "0.2"
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 tower = { version = "0.4", features = ["limit", "load-shed"] }
